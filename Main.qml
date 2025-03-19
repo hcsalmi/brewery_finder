@@ -10,28 +10,69 @@ Window {
     visible: true
     title: qsTr("Brewery Finder")
 
-
     BreweryManager {
         id: brewMaster
 
         onLongestNameFound: function(longestName) {
-            breweryText.text = longestName;
+            longestNameText.text = longestName;
+        }
+        onNorthernmostBreweryFound: function(name, latitude) {
+            northernmostText.text = "Northernmost brewery: " + name + " (Lat: " + latitude + ")";
         }
     }
 
-    Text {
-          id: breweryText
-          text: "Longest brewery name will appear here."
-          anchors.centerIn: parent
-      }
+    ColumnLayout {
+            id: mainLayout
+            anchors.fill: parent
+            spacing: 10
 
-      Button {
-          text: "Find Longest Name"
-          anchors.top: mainWindow.top
+        Rectangle {
+            id: rec1
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: "green"
 
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 10
 
-          onClicked: {
-              brewMaster.findLongestName();
-          }
-      }
+                Button {
+                    text: "Find longest name"
+                     onClicked: brewMaster.findLongestName() // fetchMetadata will trigger everything
+                }
+
+                Text {
+                    id: longestNameText
+                    text: "No brewery data yet"
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    color: "white"
+                }
+            }
+        }
+
+        Rectangle {
+            id: rec2
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: "teal"
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 10
+
+                Button {
+                    text: "Find Northernmost"
+                    onClicked: brewMaster.findNorthernmostBrewery()
+                }
+                Text {
+                    id: northernmostText
+                    text: "No northernmost brewery data yet"
+                    color: "white"
+                }
+            }
+        }
+    }
 }

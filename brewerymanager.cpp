@@ -15,6 +15,14 @@ void BreweryManager::findLongestName()
     connect(reply, &QNetworkReply::finished, this, &BreweryManager::handleLongestNameResponse);
 }
 
+void BreweryManager::findNorthernmostBrewery() //jos useampi, mieti miten kasitellaan
+{
+    QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries?by_country=Ireland&per_page=200");
+    QNetworkRequest request(apiUrl);
+    QNetworkReply *reply = networkManager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &BreweryManager::handleNorthernmostResponse);
+}
+
 void BreweryManager::handleLongestNameResponse()
 {
     QNetworkReply *reply;
@@ -61,4 +69,56 @@ void BreweryManager::handleLongestNameResponse()
     }
     reply->deleteLater();
 }
+
+void BreweryManager::handleNorthernmostResponse()
+{
+    QNetworkReply *reply;
+
+    reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply)
+        return;
+
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QByteArray responseData = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+
+        if(!jsonDoc.isArray())
+            return;
+
+        QJsonArray breweriesArray = jsonDoc.array();
+        double northernmostLatitude = SOUTH_POLE_LATITUDE;
+        QString northernmostName = "Unknown";
+        QStringList northernmostNamesList;
+        const double TOLERANCE = 0.00001;
+
+
+        for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++ )
+        {
+            QJsonObject brewery = it->toObject();
+            double latitude = brewery["latitude"].toString().toDouble();
+
+            if (latitude > northernmostLatitude)
+            {
+                northernmostLatitude = latitude;
+                northernmostName = brewery["name"].toString();
+                northernmostNamesList.clear();
+                northernmostNamesList.append(northernmostName);
+            }
+            else if (qAbs(latitude - northernmostLatitude) < TOLERANCE)
+            {
+                northernmostNamesList.append(brewery["name"].toString());
+            }
+        }
+        QString northernmostNamesString = northernmostNamesList.join(", ");
+        emit northernmostBreweryFound(northernmostNamesString, northernmostLatitude);
+    }
+    else
+    {
+        qDebug() << "Error fetching northernmost brewery:" << reply->errorString();
+    }
+
+    reply->deleteLater();
+}
+
 
