@@ -19,6 +19,9 @@ Window {
         onNorthernmostBreweryFound: function(name, latitude) {
             northernmostText.text = "Northernmost brewery: " + name + " (Lat: " + latitude + ")";
         }
+        onSouthernmostBreweryFound: function(name, latitude) {
+            southernmostText.text = "Southernmost brewery: " + name + " (Lat: " + latitude + ")";
+        }
     }
 
     ColumnLayout {
@@ -70,6 +73,29 @@ Window {
                 Text {
                     id: northernmostText
                     text: "No northernmost brewery data yet"
+                    color: "white"
+                }
+            }
+        }
+
+        Rectangle {
+            id: rec3
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            color: "red"
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 10
+
+                Button {
+                    text: "Find Southernmost"
+                    onClicked: brewMaster.findSouthernmostBrewery()
+                }
+                Text {
+                    id: southernmostText
+                    text: "No southernmost brewery data yet"
                     color: "white"
                 }
             }

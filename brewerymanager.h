@@ -5,6 +5,7 @@
 #include <QtQml>
 
 #define SOUTH_POLE_LATITUDE -90.0
+#define NORTH_POLE_LATITUDE 90.0
 
 class BreweryManager : public QObject
 {
@@ -13,17 +14,20 @@ class BreweryManager : public QObject
 
 public:
     explicit BreweryManager(QObject *parent = nullptr);
+
     Q_INVOKABLE void findLongestName();
     Q_INVOKABLE void findNorthernmostBrewery();
+    Q_INVOKABLE void findSouthernmostBrewery();
 
 signals:
     void longestNameFound(QString longestName);
     void northernmostBreweryFound(QString name, double latitude);
+    void southernmostBreweryFound(QString name, double latitude);
 
 private slots:
     void handleLongestNameResponse();
     void handleNorthernmostResponse();
-
+    void handleSouthernmostResponse();
 
 private:
     QNetworkAccessManager networkManager; // Handles API requests
