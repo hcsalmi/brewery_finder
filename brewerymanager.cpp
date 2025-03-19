@@ -6,16 +6,34 @@
 BreweryManager::BreweryManager(QObject *parent): QObject(parent){
 }
 
-//Pagination not yet implemented
 void BreweryManager::findLongestName()
 {
-    QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries?by_country=Ireland&per_page=200");
+    _longestNameLength = 0;
+    _longestNamesList.clear();
+    int page = 1;
+
+    fetchPage(page);
+}
+
+void BreweryManager::fetchPage(int page)
+{
+    QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries");
+    QUrlQuery query;
+    query.addQueryItem("by_country", "Ireland");
+    query.addQueryItem("per_page", QString::number(_perPage));
+    query.addQueryItem("page", QString::number(page));
+    apiUrl.setQuery(query);
+
     QNetworkRequest request(apiUrl);
     QNetworkReply *reply = networkManager.get(request);
+
+    // store the page number as property for later handling in the slot
+    reply->setProperty("page", page);
+
     connect(reply, &QNetworkReply::finished, this, &BreweryManager::handleLongestNameResponse);
 }
 
-void BreweryManager::findNorthernmostBrewery() //jos useampi, mieti miten kasitellaan
+void BreweryManager::findNorthernmostBrewery()
 {
     QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries?by_country=Ireland&per_page=200");
     QNetworkRequest request(apiUrl);
@@ -33,48 +51,52 @@ void BreweryManager::findSouthernmostBrewery()
 
 void BreweryManager::handleLongestNameResponse()
 {
-    QNetworkReply *reply;
-
-    //sender() allows access to the QNetworkReply that triggered the slot; safety cast
-    reply = qobject_cast<QNetworkReply *>(sender());
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply)
         return;
 
-    if (reply->error() == QNetworkReply::NoError)
+    int page = reply->property("page").toInt();  // retrieve the page number
+    QByteArray responseData = reply->readAll();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+
+    if (reply->error() == QNetworkReply::NoError && jsonDoc.isArray())
     {
-        QByteArray responseData = reply->readAll();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
-
-        if (!jsonDoc.isArray())
-            return;
-
         QJsonArray breweriesArray = jsonDoc.array();
 
-        int longestNameLength = 0;
-        QStringList longestNamesList;
-
-        for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++ )
+        // process the breweries on this page
+        for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++)
         {
             QJsonObject brewery = it->toObject();
             QString name = brewery["name"].toString();
             int nameLength = name.length();
 
-            if(nameLength > longestNameLength)
+            if (nameLength > _longestNameLength)
             {
-                longestNameLength = nameLength;
-                longestNamesList.clear();
-                longestNamesList.append(name);
+                _longestNameLength = nameLength;
+                _longestNamesList.clear();
+                _longestNamesList.append(name);
             }
-            else if (nameLength == longestNameLength)
-                longestNamesList.append(name);
+            else if (nameLength == _longestNameLength)
+            {
+                _longestNamesList.append(name);
+            }
         }
-        QString longestNamesString = longestNamesList.join(",");
-        emit longestNameFound(longestNamesString);
+        // if we fetched a full page, request the next page
+        if (breweriesArray.size() == _perPage)
+        {
+            fetchPage(page + 1);
+        }
+        else
+        {
+            QString longestNamesString = _longestNamesList.join(",");
+            emit longestNameFound(longestNamesString);
+        }
     }
     else
     {
         qDebug() << "Error fetching breweries:" << reply->errorString();
     }
+
     reply->deleteLater();
 }
 
@@ -99,7 +121,6 @@ void BreweryManager::handleNorthernmostResponse()
         QString northernmostName = "Unknown";
         QStringList northernmostNamesList;
         const double TOLERANCE = 0.00001;
-
 
         for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++ )
         {
@@ -179,4 +200,3 @@ void BreweryManager::handleSouthernmostResponse()
 
     reply->deleteLater();
 }
-

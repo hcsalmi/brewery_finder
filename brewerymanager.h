@@ -30,7 +30,13 @@ private slots:
     void handleSouthernmostResponse();
 
 private:
-    QNetworkAccessManager networkManager; // Handles API requests
+    QNetworkAccessManager networkManager;
+
+    static const int _perPage = 50;
+    int _longestNameLength;
+    QStringList _longestNamesList;
+
+    void fetchPage(int page);
 };
 
 #endif
