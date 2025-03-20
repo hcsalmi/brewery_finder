@@ -12,10 +12,19 @@ void BreweryManager::findLongestName()
     _longestNamesList.clear();
     int page = 1;
 
-    fetchPage(page);
+    fetchPageForLongestName(page);
 }
 
-void BreweryManager::fetchPage(int page)
+void BreweryManager::findNorthernmostBrewery()
+{
+    _northernmostLatitude = SOUTH_POLE_LATITUDE;
+    _northernmostNamesList.clear();
+    int page = 1;
+
+    fetchPageForNorthernmost(page);
+}
+
+void BreweryManager::fetchPageForLongestName(int page)
 {
     QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries");
     QUrlQuery query;
@@ -33,11 +42,21 @@ void BreweryManager::fetchPage(int page)
     connect(reply, &QNetworkReply::finished, this, &BreweryManager::handleLongestNameResponse);
 }
 
-void BreweryManager::findNorthernmostBrewery()
+void BreweryManager::fetchPageForNorthernmost(int page)
 {
-    QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries?by_country=Ireland&per_page=200");
+    QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries");
+    QUrlQuery query;
+    query.addQueryItem("by_country", "Ireland");
+    query.addQueryItem("per_page", QString::number(_perPage));
+    query.addQueryItem("page", QString::number(page));
+    apiUrl.setQuery(query);
+
     QNetworkRequest request(apiUrl);
     QNetworkReply *reply = networkManager.get(request);
+
+    // store the page number as property for later handling in the slot
+    reply->setProperty("page", page);
+
     connect(reply, &QNetworkReply::finished, this, &BreweryManager::handleNorthernmostResponse);
 }
 
@@ -84,7 +103,7 @@ void BreweryManager::handleLongestNameResponse()
         // if we fetched a full page, request the next page
         if (breweriesArray.size() == _perPage)
         {
-            fetchPage(page + 1);
+            fetchPageForLongestName(page + 1);
         }
         else
         {
@@ -110,6 +129,7 @@ void BreweryManager::handleNorthernmostResponse()
 
     if (reply->error() == QNetworkReply::NoError)
     {
+        int page = reply->property("page").toInt();  // retrieve the page number
         QByteArray responseData = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
@@ -117,30 +137,30 @@ void BreweryManager::handleNorthernmostResponse()
             return;
 
         QJsonArray breweriesArray = jsonDoc.array();
-        double northernmostLatitude = SOUTH_POLE_LATITUDE;
-        QString northernmostName = "Unknown";
-        QStringList northernmostNamesList;
-        const double TOLERANCE = 0.00001;
 
         for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++ )
         {
             QJsonObject brewery = it->toObject();
+            QString name = brewery["name"].toString();
             double latitude = brewery["latitude"].toString().toDouble();
 
-            if (latitude > northernmostLatitude)
+            if (latitude > _northernmostLatitude)
             {
-                northernmostLatitude = latitude;
-                northernmostName = brewery["name"].toString();
-                northernmostNamesList.clear();
-                northernmostNamesList.append(northernmostName);
+                _northernmostLatitude = latitude;
+                _northernmostNamesList.clear();
+                _northernmostNamesList.append(name);
             }
-            else if (qAbs(latitude - northernmostLatitude) < TOLERANCE)
+            else if (qAbs(latitude - _northernmostLatitude) < _tolerance)
             {
-                northernmostNamesList.append(brewery["name"].toString());
+                _northernmostNamesList.append(name);
             }
         }
-        QString northernmostNamesString = northernmostNamesList.join(", ");
-        emit northernmostBreweryFound(northernmostNamesString, northernmostLatitude);
+        if (breweriesArray.size() == _perPage)
+        {
+            fetchPageForNorthernmost(page + 1);
+        }
+        QString northernmostNamesString = _northernmostNamesList.join(", ");
+        emit northernmostBreweryFound(northernmostNamesString, _northernmostLatitude);
     }
     else
     {
@@ -185,7 +205,7 @@ void BreweryManager::handleSouthernmostResponse()
                 southernmostNamesList.clear();
                 southernmostNamesList.append(southernmostName);
             }
-            else if (qAbs(latitude - southernmostLatitude) < TOLERANCE)
+            else if (qAbs(latitude - southernmostLatitude) < _tolerance)
             {
                 southernmostNamesList.append(brewery["name"].toString());
             }
