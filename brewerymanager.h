@@ -33,7 +33,7 @@ private:
     QNetworkAccessManager networkManager;
 
     static const int _perPage = 50;
-    const double _tolerance = 0.00001;
+    static constexpr double _tolerance = 0.00001;
 
     int _longestNameLength;
     QStringList _longestNamesList;
@@ -41,8 +41,12 @@ private:
     double _northernmostLatitude;
     QStringList _northernmostNamesList;
 
+    double _southernmostLatitude;
+    QStringList _southernmostNamesList;
+
     void fetchPageForLongestName(int page);
     void fetchPageForNorthernmost(int page);
+    void fetchPageForSouthernmost(int page);
 };
 
 #endif
