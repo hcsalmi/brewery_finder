@@ -21,7 +21,7 @@ public:
     Q_INVOKABLE void findSouthernmostBrewery();
 
 signals:
-    void longestNameFound(QString longestName);
+    void longestNameFound(QString name);
     void northernmostBreweryFound(QString name, double latitude);
     void southernmostBreweryFound(QString name, double latitude);
 

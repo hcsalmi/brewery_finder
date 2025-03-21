@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Charm-Regular.ttf</file>
+    </qresource>
+</RCC>
