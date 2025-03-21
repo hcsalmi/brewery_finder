@@ -6,6 +6,7 @@
 
 #define SOUTH_POLE_LATITUDE -90.0
 #define NORTH_POLE_LATITUDE 90.0
+#define PRIME_MERIDIAN 0.0
 
 class BreweryManager : public QObject
 {
@@ -25,28 +26,18 @@ signals:
     void southernmostBreweryFound(QString name, double latitude);
 
 private slots:
-    void handleLongestNameResponse();
-    void handleNorthernmostResponse();
-    void handleSouthernmostResponse();
+    void handleLongestNameResponse(QNetworkReply* reply);
+    void handleCoordinatesResponse(QNetworkReply* reply);
 
 private:
     QNetworkAccessManager networkManager;
 
-    static const int _perPage = 50;
-    static constexpr double _tolerance = 0.00001;
+    static constexpr int _perPage = 50;
 
     int _longestNameLength;
     QStringList _longestNamesList;
 
-    double _northernmostLatitude;
-    QStringList _northernmostNamesList;
-
-    double _southernmostLatitude;
-    QStringList _southernmostNamesList;
-
-    void fetchPageForLongestName(int page);
-    void fetchPageForNorthernmost(int page);
-    void fetchPageForSouthernmost(int page);
+    void fetchPage(int page, std::function<void(QNetworkReply*)> responseHandler);
 };
 
 #endif
