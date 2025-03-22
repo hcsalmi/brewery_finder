@@ -34,14 +34,14 @@ Item {
 
         background: Rectangle {
             id: backButtonBackground
-            color: Qt.rgba(243/255, 156/255, 18/255, 0.7)
+            color: Qt.rgba(243/255, 156/255, 18/255, 0.8)
             radius: 3
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
                 onEntered: backButtonBackground.color = "#f39c12"
-                onExited: backButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                onExited: backButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.8)
             }
         }
         onClicked: pageLoader.source = "FirstPage.qml";
@@ -56,7 +56,7 @@ Item {
             left: parent.left
             right: parent.right
             margins: 20
-            topMargin: 10
+            topMargin: 20
        }
 
         spacing: 5
@@ -73,14 +73,14 @@ Item {
 
             background: Rectangle {
                 id: longestNameButtonBackground
-                color: Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                color: Qt.rgba(243/255, 156/255, 18/255, 0.8)
                 radius: 3
 
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true
                     onEntered: longestNameButtonBackground.color = "#f39c12"
-                    onExited: longestNameButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                    onExited: longestNameButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.8)
                 }
             }
             onClicked: brewMaster.findLongestName();
@@ -97,14 +97,14 @@ Item {
 
            background: Rectangle {
                id: northernmostButtonBackground
-               color: Qt.rgba(243/255, 156/255, 18/255, 0.7)
+               color: Qt.rgba(243/255, 156/255, 18/255, 0.8)
                radius: 3
 
                MouseArea {
                    anchors.fill: parent
                    hoverEnabled: true
                    onEntered: northernmostButtonBackground.color = "#f39c12"
-                   onExited: northernmostButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                   onExited: northernmostButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.8)
                }
            }
            onClicked: brewMaster.findNorthernmostBrewery();
@@ -121,14 +121,14 @@ Item {
 
             background: Rectangle {
                 id: southernmostButtonBackground
-                color: Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                color: Qt.rgba(243/255, 156/255, 18/255, 0.8)
                 radius: 3
 
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true
                     onEntered: southernmostButtonBackground.color = "#f39c12"
-                    onExited: southernmostButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                    onExited: southernmostButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.8)
                 }
             }
             onClicked: brewMaster.findSouthernmostBrewery();
@@ -143,7 +143,7 @@ Item {
        anchors {
            top: buttonColumn.bottom
            horizontalCenter: parent.horizontalCenter
-           topMargin: 30
+           topMargin: 35
        }
 
        Text {
@@ -159,17 +159,46 @@ Item {
             verticalAlignment: Text.AlignVCenter
        }
    }
+   Button {
+       id: mapButton
+       text: "Show on map"
+       font.pixelSize: parent.height * 0.03
+       font.family: charmFont.name
+       width: parent.width * 0.4
+       height: parent.height * 0.06
+       hoverEnabled: false
+
+       anchors {
+            top: textBox.bottom
+            horizontalCenter: textBox.horizontalCenter
+            topMargin: 20
+       }
+
+       background: Rectangle {
+           id: mapButtonBackground
+           color: Qt.rgba(243/255, 156/255, 18/255, 0.9)
+           radius: 3
+
+           MouseArea {
+               anchors.fill: parent
+               hoverEnabled: true
+               onEntered: mapButtonBackground.color = "#f39c12"
+               onExited: mapButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.9)
+           }
+       }
+       onClicked: pageLoader.source = "MapPage.qml";
+   }
     BreweryManager {
         id: brewMaster
 
         onLongestNameFound: function(name) {
-         dynamicText.text = name;
+            dynamicText.text = name;
         }
         onNorthernmostBreweryFound: function(name, latitude) {
-         dynamicText.text = name + "\n(Lat: " + latitude + ")";
+            dynamicText.text = name + "\n(Lat: " + latitude.toFixed(6) + ")";
         }
         onSouthernmostBreweryFound: function(name, latitude) {
-         dynamicText.text = name + "\n(Lat: " + latitude + ")";
+            dynamicText.text = name + "\n(Lat: " + latitude.toFixed(6) + ")";
         }
     }
 }

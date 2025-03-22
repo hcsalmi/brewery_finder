@@ -59,14 +59,14 @@ Item {
 
         background: Rectangle {
             id: buttonBackground
-            color: Qt.rgba(243/255, 156/255, 18/255, 0.7)
+            color: Qt.rgba(243/255, 156/255, 18/255, 0.8)
             radius: 3
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
                 onEntered: buttonBackground.color = "#f39c12"
-                onExited: buttonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.7)
+                onExited: buttonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.8)
             }
         }
 

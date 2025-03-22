@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>beer_hops.png</file>
+        <file>pin_marker.png</file>
     </qresource>
 </RCC>

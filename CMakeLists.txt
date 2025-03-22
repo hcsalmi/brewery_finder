@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Location Positioning)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -24,6 +24,7 @@ qt_add_qml_module(appBreweryFinder
         QML_FILES SecondPage.qml
         RESOURCES Fonts.qrc
         RESOURCES Images.qrc
+        QML_FILES MapPage.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -39,6 +40,8 @@ set_target_properties(appBreweryFinder PROPERTIES
 
 target_link_libraries(appBreweryFinder
     PRIVATE Qt6::Quick
+    PRIVATE Qt6::Location
+    PRIVATE Qt6::Positioning
 )
 
 include(GNUInstallDirs)
