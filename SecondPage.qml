@@ -21,7 +21,7 @@ Item {
         text: "Back"
         font.pixelSize: parent.height * 0.03
         font.family: charmFont.name
-        width: parent.width * 0.12
+        width: parent.width * 0.3
         height: parent.height * 0.06
         hoverEnabled: false
 
@@ -65,7 +65,7 @@ Item {
        Button {
             id: longestNameButton
             text: "Search for the brewery with the longest name"
-            font.pixelSize: parent.height * 0.15
+            font.pixelSize: parent.height * 0.11
             font.family: charmFont.name
             hoverEnabled: false
             Layout.fillWidth: true
@@ -89,7 +89,7 @@ Item {
        Button {
            id: northernmostButton
            text: "Search for the northernmost brewery"
-           font.pixelSize: parent.height * 0.15
+           font.pixelSize: parent.height * 0.11
            font.family: charmFont.name
            hoverEnabled: false
            Layout.fillWidth: true
@@ -113,7 +113,7 @@ Item {
        Button {
             id: southernmostButton
             text: "Search for the southernmost brewery"
-            font.pixelSize: parent.height * 0.15
+            font.pixelSize: parent.height * 0.11
             font.family: charmFont.name
             hoverEnabled: false
             Layout.fillWidth: true

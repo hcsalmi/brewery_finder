@@ -71,7 +71,6 @@ Item {
         }
 
         onClicked: {
-            console.log("Button clicked!");
             pageLoader.source = "SecondPage.qml";
         }
     }

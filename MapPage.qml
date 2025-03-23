@@ -22,7 +22,7 @@ Item {
         text: "Back"
         font.pixelSize: parent.height * 0.03
         font.family: charmFont.name
-        width: parent.width * 0.12
+        width: parent.width * 0.3
         height: parent.height * 0.06
         hoverEnabled: false
 
@@ -49,7 +49,7 @@ Item {
     }
     Plugin {
         id: mapPlugin
-        name: "osm" // OpenStreetMap
+        name: "osm"
     }
 
     Rectangle {
@@ -61,7 +61,7 @@ Item {
              right: parent.right
              margins: 20
         }
-        color: "transparent" // No background to avoid hiding the image
+        color: "transparent"
 
         Map {
             id: map
