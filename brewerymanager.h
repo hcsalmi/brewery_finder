@@ -21,9 +21,9 @@ public:
     Q_INVOKABLE void findSouthernmostBrewery();
 
 signals:
-    void longestNameFound(QString name);
-    void northernmostBreweryFound(QString name, double latitude);
-    void southernmostBreweryFound(QString name, double latitude);
+    void longestNameFound(const QString &name);
+    void breweryCoordinatesFound(const QString &name, double latitude);
+    void errorOccurred(const QString &message);
 
 private slots:
     void handleLongestNameResponse(QNetworkReply* reply);
@@ -37,7 +37,7 @@ private:
     int _longestNameLength;
     QStringList _longestNamesList;
 
-    void fetchPage(int page, std::function<void(QNetworkReply*)> responseHandler);
+    void fetchPage(int page, const QUrlQuery& baseQuery, std::function<void(QNetworkReply*)> responseHandler);
 };
 
 #endif

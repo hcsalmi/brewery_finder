@@ -12,7 +12,10 @@ void BreweryManager::findLongestName()
     _longestNamesList.clear();
     int page = 1;
 
-    fetchPage(page, [this](QNetworkReply* reply) {
+    QUrlQuery query;
+    query.addQueryItem("by_country", "Ireland");
+
+    fetchPage(page,query,[this](QNetworkReply* reply) {
         handleLongestNameResponse(reply);
     });
 }
@@ -57,11 +60,12 @@ void BreweryManager::findSouthernmostBrewery()
     });
 }
 
-void BreweryManager::fetchPage(int page, std::function<void(QNetworkReply*)> responseHandler)
+void BreweryManager::fetchPage(int page, const QUrlQuery& baseQuery, std::function<void(QNetworkReply*)> responseHandler)
 {
     QUrl apiUrl("https://api.openbrewerydb.org/v1/breweries");
-    QUrlQuery query;
-    query.addQueryItem("by_country", "Ireland");
+
+    QUrlQuery query = baseQuery;
+
     query.addQueryItem("per_page", QString::number(_perPage));
     query.addQueryItem("page", QString::number(page));
     apiUrl.setQuery(query);
@@ -69,7 +73,6 @@ void BreweryManager::fetchPage(int page, std::function<void(QNetworkReply*)> res
     QNetworkRequest request(apiUrl);
     QNetworkReply *reply = networkManager.get(request);
 
-    // store the page number as property for later handling in the slot
     reply->setProperty("page", page);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, responseHandler]{
@@ -80,9 +83,12 @@ void BreweryManager::fetchPage(int page, std::function<void(QNetworkReply*)> res
 void BreweryManager::handleLongestNameResponse(QNetworkReply* reply)
 {
     if (!reply)
+    {
+        emit errorOccurred("Error fetching brewery");
         return;
+    }
 
-    int page = reply->property("page").toInt();  // retrieve the page number
+    int page = reply->property("page").toInt();
     QByteArray responseData = reply->readAll();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
@@ -90,11 +96,19 @@ void BreweryManager::handleLongestNameResponse(QNetworkReply* reply)
     {
         QJsonArray breweriesArray = jsonDoc.array();
 
-        // process the breweries on this page
+        if (breweriesArray.isEmpty())
+        {
+            emit errorOccurred("No breweries found");
+            return;
+        }
         for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++)
         {
             QJsonObject brewery = it->toObject();
+
             QString name = brewery["name"].toString();
+            if (name.isEmpty())
+                continue;
+
             int nameLength = name.length();
 
             if (nameLength > _longestNameLength)
@@ -104,27 +118,30 @@ void BreweryManager::handleLongestNameResponse(QNetworkReply* reply)
                 _longestNamesList.append(name);
             }
             else if (nameLength == _longestNameLength)
-            {
                 _longestNamesList.append(name);
-            }
         }
-        // if we fetched a full page, request the next page
         if (breweriesArray.size() == _perPage)
         {
-            fetchPage(page + 1, [this](QNetworkReply* reply) {
+            QUrlQuery nextQuery;
+            nextQuery.addQueryItem("by_country", "Ireland");
+            fetchPage(page + 1, nextQuery, [this](QNetworkReply* reply) {
                 handleLongestNameResponse(reply);
             });
         }
         else
         {
-            QString longestNamesString = _longestNamesList.join(",");
+            QString longestNamesString;
+
+            if (_longestNamesList.isEmpty())
+                longestNamesString = "Brewery has no name";
+            else
+                longestNamesString = _longestNamesList.join(",");
+
             emit longestNameFound(longestNamesString);
         }
     }
     else
-    {
-        qDebug() << "Error fetching breweries:" << reply->errorString();
-    }
+        emit errorOccurred("Error fetching brewery name");
 
     reply->deleteLater();
 }
@@ -132,21 +149,21 @@ void BreweryManager::handleLongestNameResponse(QNetworkReply* reply)
 void BreweryManager::handleCoordinatesResponse(QNetworkReply* reply)
 {
     if (!reply)
-        return;
-
-    if (reply->error() == QNetworkReply::NoError)
     {
-        QByteArray responseData = reply->readAll();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+        emit errorOccurred("Error fetching brewery");
+        return;
+    }
 
-        if(!jsonDoc.isArray())
-            return;
+    QByteArray responseData = reply->readAll();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
 
+    if (reply->error() == QNetworkReply::NoError && jsonDoc.isArray())
+    {
         QJsonArray breweriesArray = jsonDoc.array();
 
         if (breweriesArray.isEmpty())
         {
-            qDebug() << "No breweries found.";
+            emit errorOccurred("No breweries found");
             return;
         }
 
@@ -154,30 +171,23 @@ void BreweryManager::handleCoordinatesResponse(QNetworkReply* reply)
         QString name = brewery["name"].toString();
         double latitude = brewery["latitude"].toString().toDouble();
 
-        QStringList northernmostNamesList;
-        northernmostNamesList.clear();
-        QStringList southernmostNamesList;
-        northernmostNamesList.clear();
-
-        QString type = reply->property("type").toString();
-
-        if (type == "northernmost")
-        {
-            northernmostNamesList.clear();
-            northernmostNamesList.append(name);
-            emit northernmostBreweryFound(name, latitude);
+        if (name.isEmpty() || qIsNaN(latitude)) {
+            emit errorOccurred("Error: Missing or invalid brewery name or latitude data");
+            return;
         }
-        else if (type == "southernmost")
+
+        const double epsilon = 0.0000001;
+
+        if (latitude < (-90.0 - epsilon) || latitude > (90.0 + epsilon))
         {
-            southernmostNamesList.clear();
-            southernmostNamesList.append(name);
-            emit southernmostBreweryFound(name, latitude);
+            emit errorOccurred("Error: Invalid latitude value");
+            return;
         }
+
+        emit breweryCoordinatesFound(name, latitude);
     }
     else
-    {
-        qDebug() << "Error fetching brewery:" << reply->errorString();
-    }
+        emit errorOccurred("Error fetching brewery");
 
     reply->deleteLater();
 }

@@ -161,7 +161,7 @@ Item {
    }
    Button {
        id: mapButton
-       text: "Show on map"
+       text: "Show on map" // disable button if coordinates invalid!
        font.pixelSize: parent.height * 0.03
        font.family: charmFont.name
        width: parent.width * 0.4
@@ -194,11 +194,11 @@ Item {
         onLongestNameFound: function(name) {
             dynamicText.text = name;
         }
-        onNorthernmostBreweryFound: function(name, latitude) {
+        onBreweryCoordinatesFound: function(name, latitude) {
             dynamicText.text = name + "\n(Lat: " + latitude.toFixed(6) + ")";
         }
-        onSouthernmostBreweryFound: function(name, latitude) {
-            dynamicText.text = name + "\n(Lat: " + latitude.toFixed(6) + ")";
+        onErrorOccurred: function(message) {
+            dynamicText.text = message;
         }
     }
 }
