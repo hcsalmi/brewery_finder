@@ -27,7 +27,7 @@ void BreweryManager::findNorthernmostBrewery()
 
     query.addQueryItem("by_country", "Ireland");
     query.addQueryItem("by_dist", QString("%1,%2").arg(NORTH_POLE_LATITUDE).arg(PRIME_MERIDIAN));
-    query.addQueryItem("per_page", "3");
+    query.addQueryItem("per_page", "1");
 
     apiUrl.setQuery(query);
 
@@ -47,7 +47,7 @@ void BreweryManager::findSouthernmostBrewery()
 
     query.addQueryItem("by_country", "Ireland");
     query.addQueryItem("by_dist", QString("%1,%2").arg(SOUTH_POLE_LATITUDE).arg(PRIME_MERIDIAN));
-    query.addQueryItem("per_page", "3");
+    query.addQueryItem("per_page", "1");
 
     apiUrl.setQuery(query);
 

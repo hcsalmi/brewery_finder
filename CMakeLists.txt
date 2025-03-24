@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 
 include(FetchContent)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Core Gui Location Positioning QuickControls2 Network)
+find_package(Qt6 REQUIRED COMPONENTS Quick Core Gui QuickControls2 Network)
 
 find_package(Qt6 COMPONENTS PlatformGraphics QUIET)
 if(Qt6PlatformGraphics_FOUND)
@@ -30,7 +30,6 @@ qt_add_qml_module(appBreweryFinder
     QML_FILES SecondPage.qml
     RESOURCES Fonts.qrc
     RESOURCES Images.qrc
-    QML_FILES MapPage.qml
     RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml
 )
 
@@ -50,8 +49,6 @@ endif()
 
 target_link_libraries(appBreweryFinder
     PRIVATE Qt6::Quick
-    PRIVATE Qt6::Location
-    PRIVATE Qt6::Positioning
     PRIVATE Qt6::QuickControls2
     PRIVATE Qt6::Gui
     PRIVATE Qt6::Core

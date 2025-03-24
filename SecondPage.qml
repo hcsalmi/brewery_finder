@@ -47,8 +47,6 @@ Item {
         onClicked: pageLoader.source = "FirstPage.qml";
     }
 
-
-    // Column Layout to stack buttons vertically
    ColumnLayout {
        id: buttonColumn
        anchors {
@@ -159,35 +157,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
        }
    }
-   Button {
-       id: mapButton
-       text: "Show on map" // disable button if coordinates invalid!
-       font.pixelSize: parent.height * 0.03
-       font.family: charmFont.name
-       width: parent.width * 0.4
-       height: parent.height * 0.06
-       hoverEnabled: false
 
-       anchors {
-            top: textBox.bottom
-            horizontalCenter: textBox.horizontalCenter
-            topMargin: 20
-       }
-
-       background: Rectangle {
-           id: mapButtonBackground
-           color: Qt.rgba(243/255, 156/255, 18/255, 0.9)
-           radius: 3
-
-           MouseArea {
-               anchors.fill: parent
-               hoverEnabled: true
-               onEntered: mapButtonBackground.color = "#f39c12"
-               onExited: mapButtonBackground.color = Qt.rgba(243/255, 156/255, 18/255, 0.9)
-           }
-       }
-       onClicked: pageLoader.source = "MapPage.qml";
-   }
     BreweryManager {
         id: brewMaster
 
