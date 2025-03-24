@@ -30,15 +30,13 @@ I started the actual assignment with the aspect most familiar to me: C++ and API
 
 ### **C++ and Qt**  
 
-I began with the search functionalities and created a simple UI to test them. I started with the “search for the longest name” and extended this logic for searching the northernmost and southernmost breweries.  
+I began with the search functionalities and created a simple UI to test them. I started with “search for the longest name” and extended this logic for searching the northernmost and southernmost breweries.  
 
 Later, I realized that instead of using the same URL to fetch all breweries in Ireland, I can use the “by_dist” query parameter for the northernmost and southernmost searches, which made the final solution simpler and more efficient. It also saved me from repeatedly comparing double latitude values and dealing with their possible inaccuracy when it comes to precision.  
 
-At this point, I made basic error checks and handled basic edge cases, like several breweries having the same name length. I solved this by saving the brewery names in a list instead of a string.  
+At this point, I made basic error checks and handled some edge cases, like several breweries having the same name length. I solved this by saving the brewery names in a list instead of a string.  
 
-Later, I implemented pagination to the “longest name search” functionality. Currently, there are 70 breweries in Ireland, but in case the industry grows, or the app is used to fetch breweries from a larger country, I implemented response handling page by page and set `per_page` to 50 as it seems a reasonable number and is the default in the Open Brewery DB.  
-
-Initially, I made a version that fetched the actual number of breweries through the metadata endpoint and used this to determine whether pagination was needed or not. However, I discarded this idea as going straight to pagination is simpler and covers more cases.  
+Later, I implemented pagination to the “longest name search” functionality. Currently, there are 70 breweries in Ireland, but in case the industry grows or the app is modified to fetch data from other countries with more breweries, I implemented page-by-page response handling. I set `per_page` to 50 as it seems a reasonable number and is the default in the Open Brewery DB. Initially, I made a version that fetched the actual number of breweries through the metadata endpoint and used this to determine whether pagination was needed or not. However, I discarded this idea as going straight to pagination is simpler and more efficient.  
 
 ### **QML**  
 
@@ -46,9 +44,9 @@ After getting the API response handling to work, I spent some days developing th
 
 Initially, I was planning on using Qt Designer, but after installing and researching it, I decided I would probably not have the time to learn a new tool and instead made changes directly to the `.qml` files.  
 
-I wanted to have several pages/views in my app and researched the different ways to transition from one view to another. I first implemented a version using `StackView` but switched to `Loader` for simplicity, since `Loader` only loads the necessary components when required, working more efficiently in a small app like this.  
+I wanted to have several pages/views in my app and researched the different ways to transition from one view to another. I first implemented a version using `StackView` but switched to `Loader` for simplicity, since it only loads the necessary components when required, working more efficiently in a small app like this.  
 
-I decided to create a welcome page and a search page, with a possible addition of a map page if time permits.
+I decided to create a welcome page and a search page, with a possible addition of a map page, if time permits.
 
 ---
 
@@ -58,7 +56,7 @@ At this stage of the process (19 March), I had a separate working UI and API fun
 
 The merging of the two was quite easy, and encouraged by this success, I decided to try to implement a map functionality. It required some research to find out which additional libraries were required and how the Open Street Map plugin works in Qt Quick apps.  
 
-I made a separate page/view for the map, added a marker icon, and other features such as zooming and dragging. At this stage, there was no way to pass coordinates to the map, so it was an early prototype. I decided I would look into acquiring the API key for the map resource to remove the “API Key required” watermark.
+I made a separate page for the map, added a marker icon, and other features such as zooming and dragging. At this stage, there was no way to pass coordinates to the map, so it was an early prototype. I decided I would look into acquiring the API key for the map resource to remove the “API Key required” watermark, if I there was time.
 
 ---
 
@@ -70,9 +68,9 @@ This was perhaps the trickiest part for me, as I had no experience in the area. 
 
 Mostly, I had issues with OpenSSL libraries not being bundled with the Android build, which led to TLS failures when making API requests. After researching similar issues on Qt Forum, Stack Overflow, and YouTube, I learned how to manually package the required OpenSSL libraries with my application by modifying the Android deployment template.  
 
-I managed to deploy the app both on the virtual device as well as my phone. There were some minor UI tweaks I needed to make, e.g. resizing some buttons and fonts, but the search functions worked nicely. However, the map was unresponsive.  
+I managed to deploy the app both on the virtual device as well as my phone. There were some minor UI tweaks I needed to make, e.g. resizing some buttons and fonts, but the search functions worked nicely. However, the map was unresponsive. I used a Galaxy Nexus emulator with Android 14 and my Google Pixel 9 for deployment.
 
-Considering the approaching time limit for finishing this project, I might need to remove the map functionality entirely, as it is only functional in the desktop version and even there the proper coordinates are not yet passed.
+At this point, I realized that I will probably not have time to fully implement a map functionality and may need to remove the current map-related code from the final version.
 
 ---
 
@@ -80,23 +78,21 @@ Considering the approaching time limit for finishing this project, I might need 
 
 After successfully deploying a working app to Android, I still had time for some final tweaks and to finish writing my README.  
 
-I made some final changes to the code to make it easier to read and so that functionalities can be added later. For example, I made the `fetchPage` function universal, so that other searches besides the “longest name search” can use it if more search functionalities are added later. Here I learned about using lambda functions with closures for handling network responses, which I have not done before.
+I made final refinements to improve code readability and ensure easier expansion. For example, I modified the fetchPage function to be more versatile, allowing it to support additional search functionalities beyond the 'longest name search' in the future. Here I learned about using lambda functions with closures for handling network responses, which I have not done before.
 
-Hive Helsinki peer evaluations have taught me to consider edge cases carefully, so I made improvements to my error handling. I checked edge cases and improved my error management to handle cases like breweries having invalid latitude or no name. I tested these by causing errors intentionally (e.g. creating empty arrays, setting invalid values).
+Hive Helsinki peer evaluations have taught me to consider edge cases carefully, and I found some room for improvement in my error handling. I reviewed edge cases and enhanced error handling to account for scenarios like breweries with missing names or invalid latitude values. To test these and other edge cases, I deliberately introduced errors, for example by creating empty arrays, assigning pointers to null and setting invalid values.
+
+As the final change, I decided to remove the map functionality as I did not have time to finish it. Although I succeeded in making the map responsive in the desktop environment, finishing the Android side would have taken a bit more time.
 
 ---
 
 ## **Thoughts and Reflection**  
 
-My goal was to make an app that can be developed further. For example, by adding find functions for searching breweries by state or type. This could perhaps be done using a dropdown menu with different search options.  
+My goal was to make an app with a clear structure that can be easily developed further. For example, new search parameters can be added using different queries and a dropdown menu with different search parameters can be added to the UI. If I had more time, I would have continued working on the map feature and implemented it so that also the longitude value would be stored, and the coordinates used to pinpoint the brewery.  
 
-If I had more time, I would have continued working on the map feature and implemented it so that latitude and longitude are used to pinpoint the brewery.  
+My prior programming knowledge was especially useful in working with the API responses in C++. Integrating Qt’s signal-slot mechanism with my existing C++ knowledge was an interesting new challenge. My experience with CSS provided me with knowledge of UI element hierarchy, parent-child relationships, and styling principles, which helped me to understand QML structure. I found QML intuitive and nice to work with, even though I do not have much experience in implementing UI.
 
-My prior programming knowledge was especially useful in working with the API responses in C++. Integrating Qt and its signal-slot mechanism into that was a nice new element. Also, I had a basic understanding of UI element hierarchy, parent-child relationships, and styling principles through CSS, which helped me to understand QML structure.  
+The trickiest part was the deployment, as I had no prior experience of cross-platform or Android development. In hindsight, it would have been better to start testing on Android earlier. This would have allowed me to tackle platform-specific challenges, such as OpenSSL dependencies, sooner.
 
-The trickiest part was the deployment, as I had no prior experience of cross-platform or Android development. In hindsight, I would have started testing on Android earlier instead of focusing primarily on desktop. This would have allowed me to tackle platform-specific challenges, such as OpenSSL dependencies, sooner.  
-
-Through this project, I gained hands-on experience with the Qt framework, its development tools, and QML, while also getting more practice in API client implementation in C++.  
-
-I am quite happy with my final product, given my lack of experience in this area. Overall, this was a nice assignment and a great way to get into Android development and Qt.
+Through this project, I gained hands-on experience with the Qt framework, its development tools, and QML, while also getting more practice in API client implementation in C++. I am quite happy with my final product, given my lack of experience in this area. Overall, this was a nice assignment and a great way to get into Android development and Qt.
 
