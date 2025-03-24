@@ -133,7 +133,7 @@ void BreweryManager::handleLongestNameResponse(QNetworkReply* reply)
             QString longestNamesString;
 
             if (_longestNamesList.isEmpty())
-                longestNamesString = "Brewery has no name";
+                longestNamesString = "Breweries have no names";
             else
                 longestNamesString = _longestNamesList.join(",");
 
@@ -169,20 +169,25 @@ void BreweryManager::handleCoordinatesResponse(QNetworkReply* reply)
 
         QJsonObject brewery = breweriesArray.first().toObject();
         QString name = brewery["name"].toString();
-        double latitude = brewery["latitude"].toString().toDouble();
+        QString latitudeString = brewery["latitude"].toString();
 
-        if (name.isEmpty() || qIsNaN(latitude)) {
-            emit errorOccurred("Error: Missing or invalid brewery name or latitude data");
+        if (latitudeString.isEmpty())
+        {
+            emit errorOccurred("Error: No latitude value");
             return;
         }
+        double latitude = latitudeString.toDouble();
 
         const double epsilon = 0.0000001;
 
-        if (latitude < (-90.0 - epsilon) || latitude > (90.0 + epsilon))
+        if (qIsNaN(latitude) || latitude < (-90.0 - epsilon) || latitude > (90.0 + epsilon))
         {
             emit errorOccurred("Error: Invalid latitude value");
             return;
         }
+
+        if (name.isEmpty())
+            name = "Brewery has no name";
 
         emit breweryCoordinatesFound(name, latitude);
     }
