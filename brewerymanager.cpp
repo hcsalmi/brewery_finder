@@ -98,8 +98,23 @@ void BreweryManager::handleLongestNameResponse(QNetworkReply* reply)
 
         if (breweriesArray.isEmpty())
         {
-            emit errorOccurred("No breweries found");
-            return;
+            if (page == 1)
+            {
+                emit errorOccurred("No breweries found");
+                reply->deleteLater();
+                return;
+            }
+            else
+            {
+                QString longestNamesString;
+
+                if (_longestNamesList.isEmpty())
+                    longestNamesString = "Breweries have no names";
+                else
+                    longestNamesString = _longestNamesList.join(",");
+
+                emit longestNameFound(longestNamesString);
+            }
         }
         for (auto it = breweriesArray.begin(); it != breweriesArray.end(); it++)
         {
@@ -169,14 +184,13 @@ void BreweryManager::handleCoordinatesResponse(QNetworkReply* reply)
 
         QJsonObject brewery = breweriesArray.first().toObject();
         QString name = brewery["name"].toString();
-        QString latitudeString = brewery["latitude"].toString();
+        QJsonValue latitudeValue = brewery["latitude"];
 
-        if (latitudeString.isEmpty())
-        {
-            emit errorOccurred("Error: No latitude value");
+        if (!latitudeValue.isDouble()) {
+            emit errorOccurred("Error: Latitude is not a valid number");
             return;
         }
-        double latitude = latitudeString.toDouble();
+        double latitude = latitudeValue.toDouble();
 
         const double epsilon = 0.0000001;
 
