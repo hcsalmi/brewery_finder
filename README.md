@@ -30,3 +30,12 @@ During development, I used the following resources:
 All images used in the application comply with copyright and licensing guidelines. Only media that requires **no attribution** was included.
 
 ---
+
+
+### 📸 Screenshots
+
+
+| Welcome Page | Search Page |
+|--------------|-------------|
+| <img src="screenshots/welcome_page.jpg" alt="Welcome Page" width="300"/> | <img src="screenshots/search_page.jpg" alt="Search Page" width="300"/> |
+
